@@ -160,6 +160,38 @@ func TestWeightedClusterSelect(t *testing.T) {
 	}
 }
 
+func Test_RouteRuleImplBase_PerFilterConfig(t *testing.T) {
+
+	vhostPerFilterConfig := map[string]interface{}{
+		"filter1": nil,
+		"filter2": nil,
+	}
+	virtualHost := &v2.VirtualHost{
+		PerFilterConfig: vhostPerFilterConfig,
+	}
+	vHost, err := NewVirtualHostImpl(virtualHost)
+	if !assert.NoErrorf(t, err, "new virtualHost impl failed, err should be nil, get %+v", err) {
+		t.FailNow()
+	}
+	route := &v2.Router{
+		RouterConfig: v2.RouterConfig{
+			PerFilterConfig: map[string]interface{}{
+				"filter1": nil,
+				"filter3": nil,
+			},
+		},
+	}
+
+	routeRuleBase, err := NewRouteRuleImplBase(vHost, route)
+	if !assert.NoErrorf(t, err, "new route rule impl failed, err should be nil, get %+v", err) {
+		t.FailNow()
+	}
+	len := len(routeRuleBase.PerFilterConfig())
+	if !assert.EqualValuesf(t, 3, len, "PerFilterConfig method failed, result should be 3, get %+v", len) {
+		t.FailNow()
+	}
+}
+
 func Test_RouteRuleImplBase_matchRoute_matchMethod(t *testing.T) {
 	route := &v2.Router{
 		RouterConfig: v2.RouterConfig{

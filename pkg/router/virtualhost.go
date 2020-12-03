@@ -34,6 +34,7 @@ type VirtualHostImpl struct {
 	globalRouteConfig     *configImpl
 	requestHeadersParser  *headerParser
 	responseHeadersParser *headerParser
+	perFilterConfig       map[string]interface{}
 }
 
 func (vh *VirtualHostImpl) Name() string {
@@ -153,6 +154,7 @@ func NewVirtualHostImpl(virtualHost *v2.VirtualHost) (*VirtualHostImpl, error) {
 		fastIndex:             make(map[string]map[string]api.Route),
 		requestHeadersParser:  getHeaderParser(virtualHost.RequestHeadersToAdd, nil),
 		responseHeadersParser: getHeaderParser(virtualHost.ResponseHeadersToAdd, virtualHost.ResponseHeadersToRemove),
+		perFilterConfig:       virtualHost.PerFilterConfig,
 	}
 	for _, route := range virtualHost.Routers {
 		if err := vhImpl.addRouteBase(&route); err != nil {

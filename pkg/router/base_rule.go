@@ -252,6 +252,19 @@ func (rri *RouteRuleImplBase) MetadataMatchCriteria(clusterName string) api.Meta
 }
 
 func (rri *RouteRuleImplBase) PerFilterConfig() map[string]interface{} {
+	if rri.perFilterConfig == nil {
+		rri.perFilterConfig = make(map[string]interface{})
+	}
+	// Copy the virtual host configuration to the route.
+	// If the route already has the same type of configuration, the route configuration is preferred.
+	// But there is a problem. For example, I have a black and white list configuration.
+	// In fact, I want to merge black and white lists instead of directly using routing black and white lists.
+	// But our current `api.RouteRule` interface does not expose `VirtualHost`
+	for key, value := range rri.vHost.perFilterConfig {
+		if _, ok := rri.perFilterConfig[key]; !ok {
+			rri.perFilterConfig[key] = value
+		}
+	}
 	return rri.perFilterConfig
 }
 
